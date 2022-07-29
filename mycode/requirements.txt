@@ -1,0 +1,11 @@
+cython
+numpy
+sqlalchemy
+bcolz
+lrudi
+wrapt
+stats-models
+bottleneck
+Cyordereddict
+empyrical
+contextlib2

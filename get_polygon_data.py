@@ -11,13 +11,13 @@ from urllib3.util.retry import Retry
 
 #%%
 # Set some constant variables, I could put all of this in a seperate config file
-ALPACA_API_KEY = os.environ.get('ALPACA_API_KEY')
-START_DATE = '2005-01-03'
-END_DATE = '2020-10-23'
+ALPACA_API_KEY = 'ee_vNq1hZudQ7KZKv0xHDV8cN9TpqGvv' #os.environ.get('ALPACA_API_KEY')
+START_DATE = '2022-01-03'
+END_DATE = '2022-01-04'
 # URL for all the tickers on Polygon
 POLYGON_TICKERS_URL = 'https://api.polygon.io/v2/reference/tickers?page={}&apiKey={}'
 # URL FOR PRICING DATA - Note, getting pricing that is UNADJUSTED for splits, I will try and adjust those manually
-POLYGON_AGGS_URL = 'https://api.polygon.io/v2/aggs/ticker/{}/range/1/day/{}/{}?unadjusted=true&apiKey={}'
+POLYGON_AGGS_URL = 'https://api.polygon.io/v2/aggs/ticker/{}/range/1/minute/{}/{}?adjusted=true&limit=120&apiKey={}'
 # URL FOR DIVIDEND DATA
 POLYGON_DIV_URL = 'https://api.polygon.io/v2/reference/dividends/{}?apiKey={}'
 # URL FOR STOCK SPLITS
@@ -36,6 +36,7 @@ def get_tickers(url = POLYGON_TICKERS_URL):
     data = r.json()
 
     # This is to figure out how many pages to run pagination 
+    print(data)
     count = data['count']
     print('total tickers ' + str(count))
     pages = math.ceil(count / data['perPage'])
@@ -118,7 +119,7 @@ def get_bars(symbolslist, outdir, start, end):
                     df.drop(columns=['vw', 't', 'n'], inplace=True)
                     df.rename(columns={'v': 'volume', 'o': 'open', 'c': 'close', 'h': 'high', 'l': 'low'}, inplace=True)
 
-                    df.to_csv('{}/{}.csv'.format(outdir, symbol), index=True)
+                    df.to_csv('{}/{}.csv'.format(outdir, symbol.replace(":","_")), index=True)
                     count += 1
 
                     # Logging, I could write a short method for this to reuse
@@ -331,15 +332,16 @@ def adj_bars(directory):
 
 
 #%%  Get all the tickers on Polygon.io and save them to a data directory
-get_tickers()
+#get_tickers()
 
 #%% Combine all the paginated ticker files together into one dataframe
-symbols = combine_tickers('data/tickers')
+#symbols = combine_tickers('data/tickers')
 
 #%%  Filter down to the tickers I'm interestead in (this could also be done by modifying get_tickers)
-symbols = filter_us_exch(symbols)
+#symbols = filter_us_exch(symbols)
 
 #%% Get all the aggregated bar/pricing data for each symbol in the filtered list
+symbols=['X:BTCUSD']
 get_bars(symbols, 'data/bars', START_DATE, END_DATE)
 
 #%%  Pull in all the stock splits
@@ -358,7 +360,7 @@ adj_bars('data/bars_adj')
 
 
 #%%
-bars = pd.read_csv('data/bars_adj/AAPL.csv')
-bars['close'].plot()
+#bars = pd.read_csv('data/bars_adj/AAPL.csv')
+#bars['close'].plot()
 
 # %%
